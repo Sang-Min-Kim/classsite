@@ -5,6 +5,7 @@ import { ArrowLeft, EyeOff } from "lucide-react";
 import { siteConfig } from "@/site.config";
 import { isAdmin, isAdminPasswordSet } from "@/lib/admin-auth";
 import { getAdminClient } from "@/lib/supabase-admin";
+import { getDefaultHeroTexts, getHeroTexts } from "@/lib/data";
 import type { Item } from "@/lib/types";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
@@ -12,12 +13,16 @@ import { logout } from "./actions";
 import { LoginForm } from "./_components/login-form";
 import { ItemForm } from "./_components/item-form";
 import { DeleteButton } from "./_components/delete-button";
+import { HeroForm } from "./_components/hero-form";
 
 /* 관리자 페이지 (주소: /admin)
    1) 비밀번호가 설정 안 됐으면 → 설정 안내
    2) 로그인 안 했으면 → 로그인 화면
    3) Supabase 연결 안 됐으면 → 연결 안내
-   4) 모두 준비됐으면 → 섹션별 카드(항목) 관리 */
+   4) 모두 준비됐으면 → 히어로 문구 / 섹션별 카드(항목) 관리 */
+
+/** '히어로 문구' 탭의 주소 이름 (/admin?section=hero) */
+const HERO_TAB = "hero";
 
 export const metadata = { title: "관리자" };
 
@@ -76,6 +81,7 @@ export default async function AdminPage(props: PageProps<"/admin">) {
   const sections = siteConfig.adminSections;
   const requested = typeof searchParams.section === "string" ? searchParams.section : undefined;
   const current = sections.find((s) => s.key === requested) ?? sections[0];
+  const isHeroTab = requested === HERO_TAB;
 
   const { data, error } = await supabase
     .from("items")
@@ -106,13 +112,28 @@ export default async function AdminPage(props: PageProps<"/admin">) {
 
       {/* 섹션 탭 (site.config.ts 의 adminSections) */}
       <nav className="mt-8 flex flex-wrap gap-2">
+        <Button asChild size="sm" variant={isHeroTab ? "default" : "outline"}>
+          <Link href={`/admin?section=${HERO_TAB}`}>히어로 문구</Link>
+        </Button>
         {sections.map((s) => (
-          <Button key={s.key} asChild size="sm" variant={s.key === current.key ? "default" : "outline"}>
+          <Button
+            key={s.key}
+            asChild
+            size="sm"
+            variant={!isHeroTab && s.key === current.key ? "default" : "outline"}
+          >
             <Link href={`/admin?section=${s.key}`}>{s.label}</Link>
           </Button>
         ))}
       </nav>
 
+      {isHeroTab ? (
+        <section className="mt-8 max-w-2xl rounded-xl border p-6">
+          <h2 className="mb-5 text-lg font-semibold">히어로 문구 수정</h2>
+          <HeroForm texts={await getHeroTexts()} defaults={getDefaultHeroTexts()} />
+        </section>
+      ) : (
+      <>
       {error ? (
         <p className="mt-6 rounded-lg border border-destructive/40 p-4 text-sm text-destructive">
           데이터를 불러오지 못했습니다: {error.message}
@@ -168,6 +189,8 @@ export default async function AdminPage(props: PageProps<"/admin">) {
           )}
         </section>
       </div>
+      </>
+      )}
     </Container>
   );
 }
