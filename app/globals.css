@@ -24,30 +24,35 @@
   --radius: 0.75rem;
 
   --background: #ffffff;
-  --foreground: #111111;
+  --foreground: #1c2333;
 
   --card: #ffffff;
-  --card-foreground: #111111;
+  --card-foreground: #1c2333;
   --popover: #ffffff;
-  --popover-foreground: #111111;
+  --popover-foreground: #1c2333;
 
-  --primary: #111111;
+  /* 짙은 남색 (제목, 아이콘) */
+  --primary: #14245a;
   --primary-foreground: #ffffff;
 
-  --secondary: #f4f4f5;
-  --secondary-foreground: #111111;
+  --secondary: #e9eef8;
+  --secondary-foreground: #14245a;
 
-  --muted: #f4f4f5;
-  --muted-foreground: #6b6b6b;
+  /* 연한 회청색 (하이라이트 상자, 아이콘 배경) */
+  --muted: #f2f5fb;
+  --muted-foreground: #5a6275;
 
-  --accent: #f4f4f5;
-  --accent-foreground: #111111;
+  --accent: #e9eef8;
+  --accent-foreground: #14245a;
+
+  /* 강조 글자용 파란색 (예: "가치를 만드는 디자이너") */
+  --highlight: #2f5bb7;
 
   --destructive: #dc2626;
 
-  --border: #e5e5e5;
-  --input: #e5e5e5;
-  --ring: #a3a3a3;
+  --border: #e2e7f0;
+  --input: #e2e7f0;
+  --ring: #8fa3cf;
 
   /* 폰트 */
   --font-body: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -71,6 +76,7 @@
   --accent: #1f1f1f;
   --accent-foreground: #fafafa;
   --destructive: #ef4444;
+  --highlight: #7ea2ee;
   --border: #2a2a2a;
   --input: #2a2a2a;
   --ring: #525252;
@@ -93,6 +99,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-highlight: var(--highlight);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);

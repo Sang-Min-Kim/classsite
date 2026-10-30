@@ -125,6 +125,12 @@ export default async function AdminPage(props: PageProps<"/admin">) {
             <Link href={`/admin?section=${s.key}`}>{s.label}</Link>
           </Button>
         ))}
+        {/* 하이라이트 자세히 보기 화면은 그 화면에서 바로 편집 (로그인 상태라 편집 버튼이 보임) */}
+        {siteConfig.highlights.items.map((h) => (
+          <Button key={h.slug} asChild size="sm" variant="outline">
+            <Link href={`/highlights/${h.slug}`}>{h.tag} 편집 ↗</Link>
+          </Button>
+        ))}
       </nav>
 
       {isHeroTab ? (

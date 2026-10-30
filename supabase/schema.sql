@@ -62,3 +62,34 @@ create policy "Anyone can read site texts"
   on public.site_texts for select
   to anon, authenticated
   using (true);
+
+-- 6) 하이라이트 자세히 보기 화면(/highlights/...)의 항목을 저장하는 표
+--    slug = 어느 화면인지 (books, lectures, ai), group_heading = 화면 안의 묶음 제목
+--    표가 비어 있으면 사이트는 site.config.ts 의 기본 항목을 보여줍니다.
+create table if not exists public.highlight_entries (
+  id            uuid primary key default gen_random_uuid(),
+  slug          text not null,                       -- 어느 화면의 항목인지
+  group_heading text not null,                       -- 묶음 제목 (예: 최근 AI 수강 과목)
+  date          text not null,                       -- 날짜 (예: 2026.10.19)
+  title         text not null,                       -- 제목
+  note          text,                                -- 설명
+  place         text,                                -- 기관 / 장소
+  image_url     text,                                -- 사진 주소
+  link_url      text,                                -- 뉴스 등 기사 주소
+  sort_order    integer not null default 0,          -- 순서 (작을수록 앞)
+  created_at    timestamptz not null default now()
+);
+
+--    예전에 이 표를 이미 만들었다면 기사 주소 칸만 새로 추가
+alter table public.highlight_entries add column if not exists link_url text;
+
+create index if not exists highlight_entries_slug_order_idx on public.highlight_entries (slug, sort_order);
+
+--    방문자: 읽기만 가능 / 추가·수정·삭제: 서버의 비밀 키(SECRET KEY)로만 가능
+alter table public.highlight_entries enable row level security;
+
+drop policy if exists "Anyone can read highlight entries" on public.highlight_entries;
+create policy "Anyone can read highlight entries"
+  on public.highlight_entries for select
+  to anon, authenticated
+  using (true);
