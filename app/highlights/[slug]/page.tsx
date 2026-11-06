@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, Newspaper, Pencil, Plus } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, ExternalLink, Newspaper, Pencil, Plus } from "lucide-react";
 
 import { siteConfig } from "@/site.config";
 import { isAdmin } from "@/lib/admin-auth";
@@ -17,7 +17,11 @@ import { EntryDeleteButton } from "@/app/highlights/_components/entry-delete-but
    - 주소: /highlights/books, /highlights/lectures, /highlights/ai
    - 기본 내용은 site.config.ts 의 highlights.items[].detail 에 있습니다.
    - 관리자로 로그인(/admin)한 뒤 이 화면에 오면 항목마다 수정·삭제, 묶음마다 추가 버튼이 보입니다.
-     (저장은 Supabase 의 highlight_entries 표에 됩니다) */
+     (저장은 Supabase 의 highlight_entries 표에 됩니다)
+   - 항목이 PAGE_SIZE(20개)를 넘으면 아래에 쪽 번호가 생기고, 주소 뒤에 ?page=2 처럼 붙어 넘겨 봅니다. */
+
+/** 한 쪽에 보여줄 항목 수 */
+const PAGE_SIZE = 20;
 
 export async function generateMetadata({ params }: PageProps<"/highlights/[slug]">): Promise<Metadata> {
   const item = findHighlight((await params).slug);
@@ -32,7 +36,43 @@ function AdminNotice({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default async function HighlightPage({ params }: PageProps<"/highlights/[slug]">) {
+/** 화면 아래 쪽 번호: ‹ 1 2 3 › */
+function Pagination({ slug, page, totalPages }: { slug: string; page: number; totalPages: number }) {
+  const href = (n: number) => `/highlights/${slug}?page=${n}`;
+  const arrowClass =
+    "inline-flex size-11 items-center justify-center rounded-full border bg-card text-primary transition-colors hover:bg-secondary";
+
+  return (
+    <nav aria-label="쪽 번호" className="mt-10 flex flex-wrap items-center justify-center gap-2">
+      {page > 1 ? (
+        <Link href={href(page - 1)} aria-label="이전 쪽" className={arrowClass}>
+          <ChevronLeft className="size-5" />
+        </Link>
+      ) : null}
+      {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+        <Link
+          key={n}
+          href={href(n)}
+          aria-current={n === page ? "page" : undefined}
+          className={
+            n === page
+              ? "inline-flex size-11 items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground"
+              : "inline-flex size-11 items-center justify-center rounded-full border bg-card text-foreground transition-colors hover:bg-secondary"
+          }
+        >
+          {n}
+        </Link>
+      ))}
+      {page < totalPages ? (
+        <Link href={href(page + 1)} aria-label="다음 쪽" className={arrowClass}>
+          <ChevronRight className="size-5" />
+        </Link>
+      ) : null}
+    </nav>
+  );
+}
+
+export default async function HighlightPage({ params, searchParams }: PageProps<"/highlights/[slug]">) {
   const { slug } = await params;
   const item = findHighlight(slug);
   if (!item) notFound();
@@ -44,6 +84,13 @@ export default async function HighlightPage({ params }: PageProps<"/highlights/[
   // 수정·삭제·추가 버튼을 보여줄지 (기본 항목이 없는 화면은 바로 편집 가능)
   const editing = canSave && (fromDb || entries.length === 0);
   const groups = item.detail.groups.map((g) => g.heading);
+
+  // 쪽 나누기: 묶음 순서대로 줄 세운 뒤 20개씩 자름
+  const ordered = groups.flatMap((heading) => entries.filter((e) => e.group_heading === heading));
+  const totalPages = Math.max(1, Math.ceil(ordered.length / PAGE_SIZE));
+  const requested = Number((await searchParams).page) || 1;
+  const page = Math.min(Math.max(1, Math.floor(requested)), totalPages);
+  const onThisPage = new Set(ordered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE));
 
   return (
     <main className="flex-1 py-12 sm:py-16">
@@ -104,9 +151,18 @@ export default async function HighlightPage({ params }: PageProps<"/highlights/[
             </AdminNotice>
           ) : null}
 
+          {totalPages > 1 ? (
+            <p className="mt-6 text-sm text-muted-foreground">
+              전체 {ordered.length}개 · {page} / {totalPages}쪽
+            </p>
+          ) : null}
+
           {groups.map((heading) => {
-            const groupEntries = entries.filter((e) => e.group_heading === heading);
-            const nextOrder = (groupEntries.at(-1)?.sort_order ?? 0) + 10;
+            const allInGroup = entries.filter((e) => e.group_heading === heading);
+            const groupEntries = allInGroup.filter((e) => onThisPage.has(e));
+            const nextOrder = (allInGroup.at(-1)?.sort_order ?? 0) + 10;
+            // 이 묶음의 항목이 모두 다른 쪽에 있으면 숨김 (관리자는 '항목 추가'를 위해 제목은 보여줌)
+            if (groupEntries.length === 0 && allInGroup.length > 0 && !editing) return null;
 
             return (
               <section key={heading} className="mt-10">
@@ -182,11 +238,11 @@ export default async function HighlightPage({ params }: PageProps<"/highlights/[
                       </li>
                     ))}
                   </ul>
-                ) : (
+                ) : allInGroup.length === 0 ? (
                   <p className="mt-4 rounded-xl bg-muted px-5 py-8 text-center text-sm text-muted-foreground">
                     아직 등록된 항목이 없습니다.
                   </p>
-                )}
+                ) : null}
 
                 {editing ? (
                   <details className="mt-3 rounded-xl border p-4">
@@ -202,6 +258,8 @@ export default async function HighlightPage({ params }: PageProps<"/highlights/[
               </section>
             );
           })}
+
+          {totalPages > 1 ? <Pagination slug={slug} page={page} totalPages={totalPages} /> : null}
         </div>
       </Container>
     </main>
