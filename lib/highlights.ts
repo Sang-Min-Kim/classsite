@@ -1,5 +1,9 @@
 import { siteConfig } from "@/site.config";
 import { getPublicClient } from "@/lib/supabase";
+import { fetchLinkPreview } from "@/lib/link-preview";
+
+/** 기사 대표사진을 다시 확인하는 간격 (하루) */
+const PREVIEW_REVALIDATE_SECONDS = 60 * 60 * 24;
 
 /** 하이라이트 자세히 보기 화면의 항목 한 줄. supabase/schema.sql 의 highlight_entries 표와 같습니다. */
 export type HighlightEntry = {
@@ -40,13 +44,31 @@ export function getDefaultEntries(slug: string): HighlightEntry[] {
   );
 }
 
+/** 기사 주소는 있는데 사진이 없는 항목에 그 기사의 대표사진(og:image)을 채워 줍니다. 못 찾으면 그대로. */
+export async function fillPreviewImages(entries: HighlightEntry[]): Promise<HighlightEntry[]> {
+  return Promise.all(
+    entries.map(async (entry) => {
+      if (!entry.link_url || entry.image_url) return entry;
+      const preview = await fetchLinkPreview(entry.link_url, { revalidate: PREVIEW_REVALIDATE_SECONDS });
+      return preview?.image ? { ...entry, image_url: preview.image } : entry;
+    }),
+  );
+}
+
 /**
- * 화면에 보여줄 항목을 가져옵니다.
+ * 화면에 보여줄 항목을 가져옵니다. (사진 없는 뉴스는 대표사진을 자동으로 채움)
  * - 데이터베이스에 저장된 항목이 있으면 그 항목 (fromDb = true)
  * - 없거나 Supabase가 연결 안 됐으면: site.config.ts 의 기본 항목 (fromDb = false)
  * - 데이터베이스를 읽다가 실패하면 error 에 이유를 담아 줌 (관리자 화면에 안내용)
  */
 export async function getHighlightEntries(
+  slug: string,
+): Promise<{ entries: HighlightEntry[]; fromDb: boolean; error?: string }> {
+  const result = await loadEntries(slug);
+  return { ...result, entries: await fillPreviewImages(result.entries) };
+}
+
+async function loadEntries(
   slug: string,
 ): Promise<{ entries: HighlightEntry[]; fromDb: boolean; error?: string }> {
   const defaults = { entries: getDefaultEntries(slug), fromDb: false };

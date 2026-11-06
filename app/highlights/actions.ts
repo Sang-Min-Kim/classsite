@@ -10,7 +10,7 @@ import { revalidatePath } from "next/cache";
 
 import { isAdmin } from "@/lib/admin-auth";
 import { getAdminClient, IMAGE_BUCKET } from "@/lib/supabase-admin";
-import { findHighlight, getDefaultEntries } from "@/lib/highlights";
+import { fillPreviewImages, findHighlight, getDefaultEntries } from "@/lib/highlights";
 import { fetchLinkPreview, normalizeUrl } from "@/lib/link-preview";
 import type { ActionState } from "@/app/admin/actions";
 
@@ -44,7 +44,9 @@ export async function importDefaults(formData: FormData) {
     .eq("slug", slug);
   if (count) return;
 
-  await supabase.from("highlight_entries").insert(getDefaultEntries(slug).map((e) => ({ ...e, slug })));
+  // 기사 주소가 있는 기본 항목은 대표사진도 함께 저장
+  const entries = await fillPreviewImages(getDefaultEntries(slug));
+  await supabase.from("highlight_entries").insert(entries.map((e) => ({ ...e, slug })));
   refresh(slug);
 }
 

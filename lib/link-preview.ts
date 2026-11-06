@@ -76,8 +76,12 @@ export function normalizeUrl(input: string) {
   }
 }
 
-/** 기사 미리보기 정보를 가져옵니다. 실패하면 null. */
-export async function fetchLinkPreview(url: string): Promise<LinkPreview | null> {
+/** 기사 미리보기 정보를 가져옵니다. 실패하면 null.
+    revalidate(초)를 주면 그 시간 동안 결과를 저장해 두고 다시 쓰므로, 화면을 열 때마다 기사를 읽지 않습니다. */
+export async function fetchLinkPreview(
+  url: string,
+  options: { revalidate?: number } = {},
+): Promise<LinkPreview | null> {
   try {
     const res = await fetch(url, {
       headers: {
@@ -86,7 +90,7 @@ export async function fetchLinkPreview(url: string): Promise<LinkPreview | null>
       },
       redirect: "follow",
       signal: AbortSignal.timeout(TIMEOUT_MS),
-      cache: "no-store",
+      ...(options.revalidate ? { next: { revalidate: options.revalidate } } : { cache: "no-store" }),
     });
     if (!res.ok || !res.headers.get("content-type")?.includes("html")) return null;
 
