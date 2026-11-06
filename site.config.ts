@@ -67,9 +67,10 @@ export const siteConfig = {
     education: {
       title: "학력",
       items: [
-        { period: "1983.03 – 1987.02", text: "동국대학교 **전자계산학과** 졸업 (공학사)" },
-        { period: "1988.08 – 1991.02", text: "동국대학교 대학원 **컴퓨터공학과** (공학석사)" },
-        { period: "1994.03 – 1997.08", text: "대구가톨릭대학교 대학원 **전산통계학과** (이학박사)" },
+        /* major = 한글 프로필 파일의 '전공' 칸에 들어가는 글자 */
+        { period: "1983.03 – 1987.02", text: "동국대학교 **전자계산학과** 졸업 (공학사)", major: "전산학" },
+        { period: "1988.08 – 1991.02", text: "동국대학교 대학원 **컴퓨터공학과** (공학석사)", major: "컴퓨터공학" },
+        { period: "1994.03 – 1997.08", text: "대구가톨릭대학교 대학원 **전산통계학과** (이학박사)", major: "통계학" },
       ],
     },
     skills: {
@@ -120,9 +121,9 @@ export const siteConfig = {
       {
         slug: "lectures",
         icon: "presentation",
-        title: "02. 540시간 강의",
+        title: "02. 강의 경력",
         description: "Python 코딩·AI 보고서 제작 등 18개 강의 × 2시간 × 15주, 대학원 AI 활용 논문지도",
-        tag: "대학 강의",
+        tag: "강의 경력",
         detail: {
           intro: "30년 넘게 대학에서 전산학을 가르쳤고, 은퇴 전 4년간 540시간의 소프트웨어 활용 강의를 맡았습니다.",
           groups: [
@@ -274,6 +275,8 @@ export const siteConfig = {
     description: "기관·단체 강의, 소상공인과 시니어를 위한 AI 교육 문의를 기다립니다.",
     email: "smkimsm@gmail.com",
     links: [{ label: "YouTube", href: "https://www.youtube.com/@hunhunhan-story" }],
+    /* 프로필 한글 파일(.hwpx) 내려받기 단추 — 누르면 지금 사이트 내용으로 채운 프로필이 내려받아짐 */
+    download: { label: "프로필 한글 파일 내려받기", href: "/download/profile" },
   },
 
   /* 맨 아래(푸터) */

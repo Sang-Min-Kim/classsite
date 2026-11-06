@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
+  // 프로필 한글 파일 양식을 배포(Vercel)할 때도 함께 올리도록
+  outputFileTracingIncludes: {
+    "/download/profile": ["./templates/profile-hwpx/**/*"],
+  },
   experimental: {
     serverActions: {
       // 관리자 페이지에서 올릴 수 있는 이미지 최대 크기

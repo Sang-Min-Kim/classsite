@@ -1,0 +1,2 @@
+# 한글 프로필 양식 파일은 줄바꿈을 바꾸지 않고 그대로 저장 (바뀌면 한글 파일이 깨질 수 있음)
+templates/profile-hwpx/** binary

@@ -3,6 +3,7 @@ import {
   BookOpen,
   Briefcase,
   CirclePlay,
+  Download,
   GraduationCap,
   Mail,
   MapPin,
@@ -232,6 +233,13 @@ export function PortfolioGlass() {
               <blockquote className="mt-8 border-l-2 border-highlight pl-5 text-xl font-medium leading-relaxed">
                 “{quote}”
               </blockquote>
+              {/* 프로필 한글 파일 내려받기 (app/download/profile/route.ts 가 만들어 줌) */}
+              <Button asChild size="lg" className="mt-8">
+                <a href={contact.download.href} download>
+                  <Download />
+                  {contact.download.label}
+                </a>
+              </Button>
             </div>
 
             <ul className="space-y-3">
