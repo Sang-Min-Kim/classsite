@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 
-import { saveEntry } from "@/app/highlights/actions";
+import { previewLink, saveEntry } from "@/app/highlights/actions";
 import type { ActionState } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import type { HighlightEntry } from "@/lib/highlights";
@@ -24,13 +24,56 @@ export function EntryForm({
   entry?: HighlightEntry;
   nextOrder?: number;
 }) {
-  const [state, action, pending] = useActionState<ActionState, FormData>(saveEntry, {});
   const formRef = useRef<HTMLFormElement>(null);
+  const lastLink = useRef(entry?.link_url ?? "");
+  const [loadingLink, setLoadingLink] = useState(false);
+  const [linkMessage, setLinkMessage] = useState("");
+  const [linkImage, setLinkImage] = useState("");
+
+  const [state, action, pending] = useActionState<ActionState, FormData>(async (prev, formData) => {
+    const result = await saveEntry(prev, formData);
+    // 새로 추가에 성공하면 기사 미리보기도 비우기
+    if (result.ok && !entry) {
+      lastLink.current = "";
+      setLinkMessage("");
+      setLinkImage("");
+    }
+    return result;
+  }, {});
 
   // 새로 추가에 성공하면 입력 칸 비우기
   useEffect(() => {
     if (state.ok && !entry) formRef.current?.reset();
   }, [state, entry]);
+
+  /** 기사 주소를 넣으면(붙여넣기 또는 칸 밖을 누르면) 비어 있는 칸을 기사 정보로 바로 채움 */
+  async function fillFromLink(value: string) {
+    const url = value.trim();
+    if (!url || url === lastLink.current) return;
+    lastLink.current = url;
+
+    setLoadingLink(true);
+    setLinkMessage("기사 정보를 가져오는 중...");
+    const result = await previewLink(url);
+    setLoadingLink(false);
+
+    if (!result.ok) {
+      setLinkMessage(result.message ?? "");
+      setLinkImage("");
+      return;
+    }
+    const form = formRef.current;
+    for (const name of ["date", "title", "note", "place"] as const) {
+      const field = form?.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | null;
+      if (field && !field.value.trim() && result[name]) field.value = result[name];
+    }
+    setLinkImage(result.image ?? "");
+    setLinkMessage(
+      result.image
+        ? "기사 정보로 빈 칸을 채웠어요. 확인 후 저장하세요."
+        : "빈 칸을 채웠어요. (대표사진은 찾지 못했어요. 사진을 직접 올릴 수 있어요)",
+    );
+  }
 
   return (
     <form ref={formRef} action={action} className="grid gap-4">
@@ -46,10 +89,20 @@ export function EntryForm({
           placeholder="https://"
           defaultValue={entry?.link_url ?? ""}
           className={inputClass}
+          onBlur={(e) => fillFromLink(e.currentTarget.value)}
+          onPaste={(e) => {
+            const input = e.currentTarget;
+            setTimeout(() => fillFromLink(input.value)); // 붙여넣은 글자가 칸에 들어간 다음 실행
+          }}
         />
-        <span className="text-xs text-muted-foreground">
-          뉴스 주소를 넣으면 대표사진을 자동으로 가져오고, 비워 둔 제목·설명·날짜·기관도 채워져요.
+        <span className={loadingLink ? "text-xs text-highlight" : "text-xs text-muted-foreground"}>
+          {linkMessage ||
+            "뉴스 주소만 붙여넣으면 날짜·기관·제목·설명·대표사진이 자동으로 채워져요."}
         </span>
+        {linkImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={linkImage} alt="대표사진 미리보기" className="mt-1 aspect-video w-48 rounded-md border object-cover" />
+        ) : null}
       </label>
 
       <div className="grid gap-4 sm:grid-cols-2">

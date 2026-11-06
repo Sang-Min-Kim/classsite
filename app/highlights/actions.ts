@@ -50,6 +50,43 @@ export async function importDefaults(formData: FormData) {
   refresh(slug);
 }
 
+/* ---------- 기사 주소로 입력 칸 미리 채우기 ---------- */
+
+export type LinkPreviewResult = {
+  ok: boolean;
+  message?: string;
+  date?: string;
+  title?: string;
+  note?: string;
+  place?: string;
+  image?: string;
+};
+
+/** 설명이 너무 길면 앞부분만 (화면에 두세 줄 정도) */
+function shorten(text: string, max = 150) {
+  return text.length > max ? `${text.slice(0, max).trim()}…` : text;
+}
+
+/** 입력 칸에 기사 주소를 넣으면 바로 불림 → 제목·설명·날짜·기관·대표사진을 돌려줌 */
+export async function previewLink(input: string): Promise<LinkPreviewResult> {
+  if (!(await isAdmin())) return { ok: false, message: "로그인이 필요합니다." };
+
+  const url = normalizeUrl(input);
+  if (!url) return { ok: false, message: "https:// 로 시작하는 기사 주소를 넣어 주세요." };
+
+  const preview = await fetchLinkPreview(url);
+  if (!preview) return { ok: false, message: "기사 정보를 가져오지 못했어요. 칸을 직접 채워 주세요." };
+
+  return {
+    ok: true,
+    date: preview.date ?? todayText(),
+    title: preview.title ?? undefined,
+    note: preview.description ? shorten(preview.description) : undefined,
+    place: preview.siteName ?? undefined,
+    image: preview.image ?? undefined,
+  };
+}
+
 /* ---------- 항목 저장 (추가 / 수정) ---------- */
 
 export async function saveEntry(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -89,7 +126,7 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
     if (preview) {
       previewImage = preview.image;
       title ||= preview.title ?? "";
-      note ||= preview.description ?? "";
+      note ||= preview.description ? shorten(preview.description) : "";
       place ||= preview.siteName ?? "";
       date ||= preview.date ?? "";
     }
