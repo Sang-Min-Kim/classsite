@@ -11,15 +11,15 @@ import type { Item } from "@/lib/types";
 export const siteConfig = {
   /* 브라우저 탭 제목과 검색 결과에 보이는 정보 */
   name: "김상민",
-  title: "김상민 — AI 활용 교육 강사 포트폴리오",
-  description: "전산학 박사, 천안시 AI 전문강사 김상민의 포트폴리오입니다.",
+  title: "김상민 — 시니어 AI 강사 포트폴리오",
+  description: "30년 대학 강단의 경험으로 누구나 쉽게 쓰는 AI를 가르치는 천안시 AI 전문강사 김상민의 포트폴리오입니다.",
 
   /* 상단 메뉴 (href 의 #이름 은 아래 섹션의 id 와 같아야 해당 위치로 이동) */
   nav: [
     { label: "소개", href: "#about" },
-    { label: "학력·경력", href: "#career" },
-    { label: "하이라이트", href: "#highlights" },
-    { label: "연락처", href: "#contact" },
+    { label: "이력", href: "#career" },
+    { label: "주요 활동", href: "#highlights" },
+    { label: "강의 문의", href: "#contact" },
   ],
 
   /* 상단 메뉴 오른쪽 '비밀 버튼' (누르면 새 탭에서 관리자 페이지가 열림) */
@@ -29,20 +29,27 @@ export const siteConfig = {
   /* 포트폴리오 화면에서는 eyebrow = 큰 제목(PORTFOLIO), title = 한 줄 소개, description = 소개 문단.
      title 에서 [대괄호] 로 감싼 부분은 파란색으로 강조됩니다. */
   hero: {
-    eyebrow: "Portfolio",
-    title: "배우고 나누며, [누구나 AI를 쓰게 돕는 강사] 김상민입니다.",
+    eyebrow: "AI Instructor",
+    title: "30년 강단의 경험으로, [누구나 쉽게 쓰는 AI]를 가르칩니다.",
     description:
-      "30여 년간 대학에서 전산학을 가르치고 정보화지원센터를 이끌었습니다.\n정년 은퇴 후에는 생성형 AI를 직접 배우며 천안시 AI 전문강사로 활동하고 있습니다.\n어려운 기술을 쉬운 말로 풀어, 일상과 일터에서 바로 쓰는 AI를 전하는 것이 목표입니다.",
-    primaryCta: { label: "하이라이트 보기", href: "#highlights" },
-    secondaryCta: { label: "연락하기", href: "#contact" },
+      "대학에서 30여 년간 전산학을 가르치고 정보화지원센터를 이끌었습니다.\n정년 은퇴 후에도 생성형 AI를 직접 배우며, 지금은 천안시 AI 전문강사로 활동합니다.\n어려운 기술을 쉬운 말로 풀어, 일상과 일터에서 바로 쓰는 AI를 전합니다.",
+    primaryCta: { label: "주요 활동 보기", href: "#highlights" },
+    secondaryCta: { label: "강의 문의하기", href: "#contact" },
   },
 
-  /* 포트폴리오 화면 왼쪽 프로필 */
+  /* 첫 화면 아래 숫자 3개 (value = 큰 숫자, label = 설명) */
+  stats: [
+    { value: "30년+", label: "대학 전산학 강의" },
+    { value: "540시간", label: "소프트웨어 활용 강의" },
+    { value: "16개", label: "최근 AI 교육 과정 수료" },
+  ],
+
+  /* 프로필 (사진, 이름, 연락처) */
   profile: {
     label: "About Me",
     name: "김상민",
     hanja: "金常敃",
-    role: "천안시 AI 전문강사 · 이학박사",
+    role: "천안시 AI 전문강사 · 이학박사 (전산통계)",
     /* 사진 파일을 public 폴더에 넣고 "/파일이름.jpg" 로 바꾸면 사진이 보입니다 */
     photo: "/profile.jpg",
     details: [
@@ -56,8 +63,10 @@ export const siteConfig = {
 
   /* 학력 · 기술 · 경력 3칸 */
   career: {
+    eyebrow: "Career",
+    heading: "학력과 경력",
     education: {
-      title: "Education",
+      title: "학력",
       items: [
         { period: "1983.03 – 1987.02", text: "동국대학교 **전자계산학과** 졸업 (공학사)" },
         { period: "1988.08 – 1991.02", text: "동국대학교 대학원 **컴퓨터공학과** (공학석사)" },
@@ -65,11 +74,11 @@ export const siteConfig = {
       ],
     },
     skills: {
-      title: "Skills",
+      title: "다루는 도구",
       items: ["Python", "Excel", "ChatGPT", "Gemini · 젬스", "Claude Code", "Canva", "Kling · 힉스필드", "v0.app"],
     },
     experience: {
-      title: "Experience",
+      title: "경력",
       items: [
         { period: "1992.03 – 2020.12", text: "김천대학교 **교수**, 정보화지원센터 센터장 역임, 학사정보화 제작" },
         { period: "2021.03 – 2025.08", text: "김천대학교 **특임교수**, 대구가톨릭대학교 외래교수 후 정년 은퇴" },
@@ -78,29 +87,25 @@ export const siteConfig = {
     },
   },
 
-  /* 하이라이트 카드 3개.
+  /* 주요 활동 카드 4개.
      tag 단추를 누르면 /highlights/slug 화면이 열리고, 그 화면의 내용은 detail 에서 바꿉니다. */
   highlights: {
-    title: "Portfolio Highlights",
+    eyebrow: "Highlights",
+    title: "주요 활동",
+    description: "카드를 누르면 자세한 내용을 볼 수 있습니다.",
     items: [
       {
         slug: "books",
         icon: "book",
         title: "01. 대표 저서",
-        description: "최근 5년간 『컴퓨터활용능력 2급 실기: EXCEL 2021』, 『CODING BASICS PYTHON』 집필",
+        description: "처음 코딩을 배우는 분을 위한 파이썬 입문서 『CODING BASICS PYTHON』 집필",
         tag: "저서",
         detail: {
-          intro: "최근 5년간 렉스미디어에서 펴낸 대표 저서입니다.",
+          intro: "렉스미디어에서 펴낸 대표 저서입니다.",
           groups: [
             {
               heading: "최근 5년간의 대표 저서",
               entries: [
-                {
-                  date: "2023.12.11",
-                  title: "컴퓨터활용능력 2급 실기: EXCEL 2021",
-                  place: "렉스미디어닷컴",
-                  image: "/books/excel-2021.jpg",
-                },
                 {
                   date: "2022.02.10",
                   title: "CODING BASICS PYTHON",
@@ -224,8 +229,8 @@ export const siteConfig = {
   /* 연락처 섹션 */
   contact: {
     eyebrow: "Contact",
-    title: "함께 이야기해요",
-    description: "궁금한 점이 있다면 언제든 연락 주세요.",
+    title: "강의 문의",
+    description: "기관·단체 강의, 소상공인과 시니어를 위한 AI 교육 문의를 기다립니다.",
     email: "smkimsm@gmail.com",
     links: [{ label: "YouTube", href: "https://www.youtube.com/@hunhunhan-story" }],
   },

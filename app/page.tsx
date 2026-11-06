@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { Portfolio } from "@/components/sections/portfolio";
+import { PortfolioGlass } from "@/components/sections/portfolio-glass";
 
 /* 메인 페이지 = 섹션 블록을 위에서 아래로 쌓아 놓은 것.
    - 섹션 순서 바꾸기: 아래 줄의 순서를 바꾸면 됩니다.
@@ -15,8 +15,9 @@ export default function HomePage() {
     <>
       <Navbar />
       <main className="flex-1">
-        {/* 예전 섹션으로 돌아가려면: 아래 Portfolio 를 지우고 Hero, About, Features, Contact 를 다시 넣기 */}
-        <Portfolio />
+        {/* 유리 스타일 포트폴리오. 바로 전 모양으로 돌아가려면: PortfolioGlass 대신 Portfolio
+            (components/sections/portfolio.tsx) 를 넣기 */}
+        <PortfolioGlass />
       </main>
       <Footer />
     </>
