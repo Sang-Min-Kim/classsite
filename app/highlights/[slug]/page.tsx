@@ -37,9 +37,10 @@ export default async function HighlightPage({ params }: PageProps<"/highlights/[
   const item = findHighlight(slug);
   if (!item) notFound();
 
-  const { entries, fromDb } = await getHighlightEntries(slug);
+  const { entries, fromDb, error: dbError } = await getHighlightEntries(slug);
   const admin = await isAdmin();
-  const canSave = admin && Boolean(getAdminClient());
+  // 데이터베이스에 표가 없는 등 읽기에 실패하면 편집 버튼을 숨기고 안내를 보여줌
+  const canSave = admin && Boolean(getAdminClient()) && !dbError;
   // 수정·삭제·추가 버튼을 보여줄지 (기본 항목이 없는 화면은 바로 편집 가능)
   const editing = canSave && (fromDb || entries.length === 0);
   const groups = item.detail.groups.map((g) => g.heading);
@@ -65,7 +66,17 @@ export default async function HighlightPage({ params }: PageProps<"/highlights/[
           <p className="mt-4 leading-relaxed text-muted-foreground">{item.detail.intro}</p>
 
           {/* 관리자 안내 (방문자에게는 보이지 않음) */}
-          {admin && !canSave ? (
+          {admin && dbError ? (
+            <AdminNotice>
+              <b>관리자 편집 모드</b> — 데이터베이스에서 항목을 읽지 못해 아직 편집할 수 없습니다.
+              <br />
+              (이유: {dbError})
+              <br />
+              Supabase 대시보드 → SQL Editor 에서 <code>supabase/schema.sql</code> 의 내용을 전부
+              붙여넣고 Run 을 누른 뒤, 이 화면을 새로고침하세요.
+            </AdminNotice>
+          ) : null}
+          {admin && !canSave && !dbError ? (
             <AdminNotice>
               <b>관리자 편집 모드</b> — Supabase가 연결되지 않아 아직 수정할 수 없습니다. README.md 의
               「Supabase 연결하기」를 마치고 <code>supabase/schema.sql</code> 을 한 번 더 실행해 주세요.

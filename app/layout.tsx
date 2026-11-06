@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ko" className="h-full">
+    <html lang="ko" className="h-full" data-scroll-behavior="smooth">
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );

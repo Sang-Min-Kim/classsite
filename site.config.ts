@@ -55,7 +55,6 @@ export const siteConfig = {
     details: [
       { icon: "user", label: "이름", value: "김상민 (Kim Sangmin)" },
       { icon: "mail", label: "이메일", value: "smkimsm@gmail.com", href: "mailto:smkimsm@gmail.com" },
-      { icon: "phone", label: "연락처", value: "010-1234-5678", href: "tel:010-1234-5678" },
       { icon: "youtube", label: "유튜브", value: "@hunhunhan-story", href: "https://www.youtube.com/@hunhunhan-story" },
       { icon: "map", label: "위치", value: "충남 천안시 서북구" },
     ],
@@ -200,7 +199,49 @@ export const siteConfig = {
         tag: "AI 뉴스",
         detail: {
           intro: "강의와 공부에 참고한 AI 관련 뉴스입니다. 제목이나 사진을 누르면 기사로 이동합니다.",
-          groups: [{ heading: "AI 관련 뉴스", entries: [] }],
+          /* link = 기사 주소 (제목을 누르면 그 기사로 이동) */
+          groups: [
+            {
+              heading: "AI 관련 뉴스",
+              entries: [
+                {
+                  date: "2026.11.06",
+                  title: "식약처, 식품안전 정보 포털에 AI 기반 민원검색 서비스 도입",
+                  note: "공공 서비스에도 AI 검색이 들어오고 있습니다.",
+                  place: "AI타임스",
+                  link: "https://www.aitimes.com/news/articleView.html?idxno=217085",
+                },
+                {
+                  date: "2026.11.06",
+                  title: "비드래프트 '다윈', 수학·과학 추론 세계 2위 수준…구글·딥시크 앞서",
+                  note: "국내 AI 모델의 추론 성능 소식입니다.",
+                  place: "AI타임스",
+                  link: "https://www.aitimes.com/news/articleView.html?idxno=217089",
+                },
+                {
+                  date: "2026.11.05",
+                  title: "주민투표 '39대 1'...미국 유권자들, AI 데이터센터에 압도적 반대",
+                  note: "AI를 돌리는 데이터센터를 둘러싼 지역사회의 반발입니다.",
+                  place: "AI타임스",
+                  link: "https://www.aitimes.com/news/articleView.html?idxno=217042",
+                },
+                {
+                  date: "2026.11.05",
+                  title: "메타, AI 코딩 스타트업 컨덕터 인수...병렬 에이전트 조율 기술 확보",
+                  note: "여러 AI 에이전트를 함께 일하게 하는 기술 경쟁입니다.",
+                  place: "AI타임스",
+                  link: "https://www.aitimes.com/news/articleView.html?idxno=217045",
+                },
+                {
+                  date: "2026.11.05",
+                  title: "애플, 직원 AI 사용 예산 최대 3분의 2 삭감 추진...비용 관리 강화",
+                  note: "기업들이 AI 사용 비용을 따져 보기 시작했습니다.",
+                  place: "AI타임스",
+                  link: "https://www.aitimes.com/news/articleView.html?idxno=217054",
+                },
+              ],
+            },
+          ],
         },
       },
     ],

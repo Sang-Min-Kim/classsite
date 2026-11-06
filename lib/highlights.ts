@@ -16,7 +16,7 @@ export type HighlightEntry = {
   sort_order: number;
 };
 
-type ConfigEntry = { date: string; title: string; note?: string; place?: string; image?: string };
+type ConfigEntry = { date: string; title: string; note?: string; place?: string; image?: string; link?: string };
 
 export function findHighlight(slug: string) {
   return siteConfig.highlights.items.find((item) => item.slug === slug);
@@ -34,6 +34,7 @@ export function getDefaultEntries(slug: string): HighlightEntry[] {
       note: entry.note ?? null,
       place: entry.place ?? null,
       image_url: entry.image ?? null,
+      link_url: entry.link ?? null,
       sort_order: (i + 1) * 10,
     })),
   );
@@ -43,10 +44,11 @@ export function getDefaultEntries(slug: string): HighlightEntry[] {
  * 화면에 보여줄 항목을 가져옵니다.
  * - 데이터베이스에 저장된 항목이 있으면 그 항목 (fromDb = true)
  * - 없거나 Supabase가 연결 안 됐으면: site.config.ts 의 기본 항목 (fromDb = false)
+ * - 데이터베이스를 읽다가 실패하면 error 에 이유를 담아 줌 (관리자 화면에 안내용)
  */
 export async function getHighlightEntries(
   slug: string,
-): Promise<{ entries: HighlightEntry[]; fromDb: boolean }> {
+): Promise<{ entries: HighlightEntry[]; fromDb: boolean; error?: string }> {
   const defaults = { entries: getDefaultEntries(slug), fromDb: false };
   const supabase = getPublicClient();
   if (!supabase) return defaults;
@@ -60,7 +62,7 @@ export async function getHighlightEntries(
 
   if (error) {
     console.error("[getHighlightEntries] Supabase 읽기 실패:", error.message);
-    return defaults;
+    return { ...defaults, error: error.message };
   }
   if (!data || data.length === 0) return defaults;
   return { entries: data as HighlightEntry[], fromDb: true };
